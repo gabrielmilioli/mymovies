@@ -43,16 +43,6 @@ font-size: 18px;
 font-weight: bold;
 `;
 
-export const BannerButton = styled.TouchableOpacity`
-width: 100%;
-margin-bottom: 16px;
-`;
-
-export const Banner = styled.Image`
-height: 164px;
-border-radius: 8px;
-`;
-
 export const MovieSlider = styled.FlatList`
 height: 224px;
 margin-bottom: 24px;

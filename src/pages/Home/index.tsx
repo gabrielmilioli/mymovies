@@ -1,36 +1,58 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
-import { Container, SearchButton, SearchContainer, SearchInput, CategoryTitle, BannerButton, Banner, CategoryContainer, MovieSlider } from "./styles";
+import { Container, SearchButton, SearchContainer, SearchInput, CategoryTitle, CategoryContainer, MovieSlider } from "./styles";
 import { Feather } from "@expo/vector-icons";
-import { ScrollView } from "react-native";
+import { ActivityIndicator, ScrollView } from "react-native";
 import MovieSliderItem from "../../components/MovieSliderItem";
 import { nowPlaying, popular, topRated } from "../../services/api";
-import { maxSize } from "../../utils/array";
+import { maxSize, random } from "../../utils/array";
+import Banner from "../../components/Banner";
 
 export default function Home() {
   const [nowMovies, setNowMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [topMovies, setTopMovies] = useState([]);
+  const [bannerMovie, setBannerMovie] = useState({});
+
+  const [loading, setLoading] = useState(true);
 
   const handleBanner = () => {
 
   };
 
   useEffect(() => {
+    let isActive = true;
+    const abortController = new AbortController();
+
+    const loadAllMovies = async () => {
+      const [nowPlayingResponse, popularResponse, topRatedResponse] = await Promise.all([
+        nowPlaying(),
+        popular(),
+        topRated()
+      ]);
+
+      if (isActive) {
+        const nowMoviesList = maxSize(nowPlayingResponse.data.results, 11);
+        const randomNumber = random(nowMoviesList);
+
+        setBannerMovie(nowMoviesList[randomNumber]);
+
+        setNowMovies(nowMoviesList.filter((v: any, i: number) => i !== randomNumber));
+        setPopularMovies(maxSize(popularResponse.data.results, 10));
+        setTopMovies(maxSize(topRatedResponse.data.results, 10));
+      }
+
+    };
+
     loadAllMovies();
+    setLoading(false);
+
+    return () => {
+      isActive = false;
+      abortController.abort();
+    }
+
   }, []);
-
-  const loadAllMovies = async () => {
-    const [nowPlayingResponse, popularResponse, topRatedResponse] = await Promise.all([
-      nowPlaying(),
-      popular(),
-      topRated()
-    ]);
-
-    setNowMovies(maxSize(nowPlayingResponse.data.results, 10));
-    setPopularMovies(maxSize(popularResponse.data.results, 10));
-    setTopMovies(maxSize(topRatedResponse.data.results, 10));
-  };
 
   return (
     <Container>
@@ -40,58 +62,61 @@ export default function Home() {
         <SearchInput
           placeholder="Search..."
           placeholderTextColor="#ddd"
+          editable={!loading}
         />
-        <SearchButton>
+        <SearchButton
+          disabled={loading}
+        >
           <Feather name="search" size={32} color="#fff" />
         </SearchButton>
       </SearchContainer>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-      >
-        <CategoryContainer>
+      {loading ?
+        <ActivityIndicator size="large" color="#fff" />
+        :
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+        >
+          <CategoryContainer>
 
-          <CategoryTitle>Now playing</CategoryTitle>
-          <BannerButton
-            activeOpacity={0.8}
-            onPress={handleBanner}
-          >
+            <CategoryTitle>Now playing</CategoryTitle>
+
             <Banner
-              resizeMethod="resize"
-              source={{ uri: 'https://cdn.pastemagazine.com/www/articles/2021/06/08/best-movies-in-theaters-header.jpg' }}
+              handleBanner={handleBanner}
+              item={bannerMovie}
             />
-          </BannerButton>
 
-          <MovieSlider
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            data={nowMovies}
-            renderItem={({ item }) => (<MovieSliderItem item={item} />)}
-            keyExtractor={(item) => String(item.id)}
-          />
+            <MovieSlider
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              data={nowMovies}
+              renderItem={({ item }) => (<MovieSliderItem item={item} />)}
+              keyExtractor={(item) => String(item.id)}
+            />
 
-          <CategoryTitle>Popular</CategoryTitle>
+            <CategoryTitle>Popular</CategoryTitle>
 
-          <MovieSlider
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            data={popularMovies}
-            renderItem={({ item }) => (<MovieSliderItem item={item} />)}
-            keyExtractor={(item) => String(item.id)}
-          />
+            <MovieSlider
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              data={popularMovies}
+              renderItem={({ item }) => (<MovieSliderItem item={item} />)}
+              keyExtractor={(item) => String(item.id)}
+            />
 
-          <CategoryTitle>Top rated</CategoryTitle>
+            <CategoryTitle>Top rated</CategoryTitle>
 
-          <MovieSlider
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            data={topMovies}
-            renderItem={({ item }) => (<MovieSliderItem item={item} />)}
-            keyExtractor={(item) => String(item.id)}
-          />
+            <MovieSlider
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              data={topMovies}
+              renderItem={({ item }) => (<MovieSliderItem item={item} />)}
+              keyExtractor={(item) => String(item.id)}
+            />
 
-        </CategoryContainer>
-      </ScrollView>
+          </CategoryContainer>
+        </ScrollView>
+      }
 
     </Container>
   );
