@@ -1,14 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import { Container, SearchButton, SearchContainer, SearchInput, CategoryTitle, BannerButton, Banner, CategoryContainer, MovieSlider } from "./styles";
 import { Feather } from "@expo/vector-icons";
 import { ScrollView } from "react-native";
 import MovieSliderItem from "../../components/MovieSliderItem";
+import { nowPlaying, popular, topRated } from "../../services/api";
+import { maxSize } from "../../utils/array";
 
 export default function Home() {
+  const [nowMovies, setNowMovies] = useState([]);
+  const [popularMovies, setPopularMovies] = useState([]);
+  const [topMovies, setTopMovies] = useState([]);
 
   const handleBanner = () => {
 
+  };
+
+  useEffect(() => {
+    loadAllMovies();
+  }, []);
+
+  const loadAllMovies = async () => {
+    const [nowPlayingResponse, popularResponse, topRatedResponse] = await Promise.all([
+      nowPlaying(),
+      popular(),
+      topRated()
+    ]);
+
+    setNowMovies(maxSize(nowPlayingResponse.data.results, 10));
+    setPopularMovies(maxSize(popularResponse.data.results, 10));
+    setTopMovies(maxSize(topRatedResponse.data.results, 10));
   };
 
   return (
@@ -30,7 +51,7 @@ export default function Home() {
       >
         <CategoryContainer>
 
-          <CategoryTitle>In theaters</CategoryTitle>
+          <CategoryTitle>Now playing</CategoryTitle>
           <BannerButton
             activeOpacity={0.8}
             onPress={handleBanner}
@@ -44,8 +65,9 @@ export default function Home() {
           <MovieSlider
             horizontal={true}
             showsHorizontalScrollIndicator={false}
-            data={[1, 2, 3]}
-            renderItem={({ item }) => (<MovieSliderItem />)}
+            data={nowMovies}
+            renderItem={({ item }) => (<MovieSliderItem item={item} />)}
+            keyExtractor={(item) => String(item.id)}
           />
 
           <CategoryTitle>Popular</CategoryTitle>
@@ -53,17 +75,19 @@ export default function Home() {
           <MovieSlider
             horizontal={true}
             showsHorizontalScrollIndicator={false}
-            data={[1, 2, 3]}
-            renderItem={({ item }) => (<MovieSliderItem />)}
+            data={popularMovies}
+            renderItem={({ item }) => (<MovieSliderItem item={item} />)}
+            keyExtractor={(item) => String(item.id)}
           />
 
-          <CategoryTitle>Highest votes</CategoryTitle>
+          <CategoryTitle>Top rated</CategoryTitle>
 
           <MovieSlider
             horizontal={true}
             showsHorizontalScrollIndicator={false}
-            data={[1, 2, 3]}
-            renderItem={({ item }) => (<MovieSliderItem />)}
+            data={topMovies}
+            renderItem={({ item }) => (<MovieSliderItem item={item} />)}
+            keyExtractor={(item) => String(item.id)}
           />
 
         </CategoryContainer>
