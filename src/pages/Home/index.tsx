@@ -14,9 +14,15 @@ export default function Home() {
   const [popularMovies, setPopularMovies] = useState([]);
   const [topMovies, setTopMovies] = useState([]);
   const [bannerMovie, setBannerMovie] = useState({});
+  const [searchInput, setSearchInput] = useState('');
 
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+
+  const handleSearch = () => {
+    navigation.navigate('SearchResults', { title: searchInput });
+    setSearchInput('');
+  };
 
   const handleClickMovie = (item: any) => {
     navigation.navigate('Detail', { id: item.id });
@@ -65,9 +71,12 @@ export default function Home() {
           placeholder="Search..."
           placeholderTextColor="#ddd"
           editable={!loading}
+          value={searchInput}
+          onChangeText={setSearchInput}
         />
         <SearchButton
           disabled={loading}
+          onPress={handleSearch}
         >
           <Feather name="search" size={32} color="#fff" />
         </SearchButton>

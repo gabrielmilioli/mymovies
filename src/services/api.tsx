@@ -48,3 +48,13 @@ export const details = (id: any) => {
     }
   });
 };
+
+export const searchMovie = (title: String) => {
+  return api.get(`search/movie`, {
+    params: {
+      api_key: API_KEY,
+      language: 'en-US',
+      query: title
+    }
+  });
+};
