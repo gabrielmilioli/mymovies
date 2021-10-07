@@ -7,6 +7,7 @@ import MovieSliderItem from "../../components/MovieSliderItem";
 import { nowPlaying, popular, topRated } from "../../services/api";
 import { maxSize, random } from "../../utils/array";
 import Banner from "../../components/Banner";
+import { useNavigation } from "@react-navigation/core";
 
 export default function Home() {
   const [nowMovies, setNowMovies] = useState([]);
@@ -15,9 +16,10 @@ export default function Home() {
   const [bannerMovie, setBannerMovie] = useState({});
 
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
-  const handleBanner = () => {
-
+  const handleClickMovie = (item: any) => {
+    navigation.navigate('Detail', { id: item.id });
   };
 
   useEffect(() => {
@@ -82,7 +84,7 @@ export default function Home() {
             <CategoryTitle>Now playing</CategoryTitle>
 
             <Banner
-              handleBanner={handleBanner}
+              onClick={handleClickMovie}
               item={bannerMovie}
             />
 
@@ -90,7 +92,7 @@ export default function Home() {
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               data={nowMovies}
-              renderItem={({ item }) => (<MovieSliderItem item={item} />)}
+              renderItem={({ item }) => (<MovieSliderItem item={item} onClick={handleClickMovie} />)}
               keyExtractor={(item) => String(item.id)}
             />
 
@@ -100,7 +102,7 @@ export default function Home() {
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               data={popularMovies}
-              renderItem={({ item }) => (<MovieSliderItem item={item} />)}
+              renderItem={({ item }) => (<MovieSliderItem item={item} onClick={handleClickMovie} />)}
               keyExtractor={(item) => String(item.id)}
             />
 
@@ -110,7 +112,7 @@ export default function Home() {
               horizontal={true}
               showsHorizontalScrollIndicator={false}
               data={topMovies}
-              renderItem={({ item }) => (<MovieSliderItem item={item} />)}
+              renderItem={({ item }) => (<MovieSliderItem item={item} onClick={handleClickMovie} />)}
               keyExtractor={(item) => String(item.id)}
             />
 

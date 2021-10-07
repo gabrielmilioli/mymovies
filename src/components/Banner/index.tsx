@@ -3,14 +3,14 @@ import { BannerButton, BannerImage } from "./styles";
 
 type BannerProps = {
   item: any;
-  handleBanner: any;
+  onClick: any;
 };
 
-export default function Banner({ item, handleBanner }: BannerProps) {
+export default function Banner({ item, onClick }: BannerProps) {
   return (
     <BannerButton
       activeOpacity={0.8}
-      onPress={handleBanner}
+      onPress={() => onClick(item)}
     >
       <BannerImage
         resizeMethod="resize"

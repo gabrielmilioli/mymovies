@@ -39,3 +39,12 @@ export const topRated = () => {
     }
   });
 };
+
+export const details = (id: any) => {
+  return api.get(`movie/${id}`, {
+    params: {
+      api_key: API_KEY,
+      language: 'en-US',
+    }
+  });
+};

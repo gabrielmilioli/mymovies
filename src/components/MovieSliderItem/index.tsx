@@ -4,12 +4,14 @@ import { Ionicons } from "@expo/vector-icons";
 
 type MovieSliderItemProps = {
   item: any;
+  onClick: any;
 };
 
-export default function MovieSliderItem({ item }: MovieSliderItemProps) {
+export default function MovieSliderItem({ item, onClick }: MovieSliderItemProps) {
   return (
     <Container
       activeOpacity={0.8}
+      onPress={() => onClick(item)}
     >
       <Image
         resizeMethod="resize"
